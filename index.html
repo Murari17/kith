@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kith — Zero-Server Encrypted Chat for Android</title>
+  <meta name="description" content="End-to-end encrypted messaging over offline Bluetooth mesh and decentralized Nostr relays. No phone numbers, no accounts, zero servers." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 108 108'%3E%3Crect width='108' height='108' rx='24' fill='%2309090B'/%3E%3Cpath d='M26 42V26h16M82 66v16H66' fill='none' stroke='%23FAFAFA' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='45' y1='63' x2='63' y2='45' stroke='%23FAFAFA' stroke-width='7' stroke-linecap='round'/%3E%3Ccircle cx='44' cy='64' r='7' fill='%23FAFAFA'/%3E%3Ccircle cx='64' cy='44' r='7' fill='%2322C55E'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --bg: #09090B;
+      --surface: #131316;
+      --surface-hover: #1C1C20;
+      --border: #222226;
+      --ink: #FAFAFA;
+      --muted: #A1A1AA;
+      --green: #22C55E;
+      --cyan: #38BDF8;
+      --amber: #F59E0B;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px 96px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 36px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      display: block;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 999px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.35fr 0.65fr;
+      gap: 40px;
+      align-items: center;
+      padding: 56px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.2rem, 4.6vw, 3.25rem);
+      font-weight: 700;
+      line-height: 1.06;
+      letter-spacing: -0.04em;
+      margin-bottom: 18px;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 1.05rem;
+      margin-bottom: 28px;
+      max-width: 52ch;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.94rem;
+      text-decoration: none;
+      transition: background 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn-primary {
+      background: var(--ink);
+      color: var(--bg);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--ink);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-hover);
+    }
+
+    .qr-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #qrcode {
+      background: #FAFAFA;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      min-width: 180px;
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qr-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      padding: 48px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+    }
+
+    .tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+
+    .card h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.08rem;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .card p {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .install-strip {
+      padding-top: 36px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .install-steps {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+    }
+
+    .install-steps span {
+      color: var(--ink);
+    }
+
+    @media (max-width: 740px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 40px 0;
+      }
+      .qr-card {
+        max-width: 240px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <a class="brand" href="#">
+        <svg class="brand-icon" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M26 42V26h16M82 66v16H66" fill="none" stroke="#FAFAFA" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+          <line x1="45" y1="63" x2="63" y2="45" stroke="#FAFAFA" stroke-width="7" stroke-linecap="round" />
+          <circle cx="44" cy="64" r="7" fill="#FAFAFA" />
+          <circle cx="64" cy="44" r="7" fill="#22C55E" />
+        </svg>
+        Kith
+      </a>
+      <div class="status-pill">
+        <span class="pulse-dot"></span>
+        0 SERVERS · BLE MESH + NOSTR · ANDROID 7+
+      </div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1>Encrypted chat that works with or without internet.</h1>
+        <p class="sub">
+          Pair face-to-face via QR code for offline multi-hop Bluetooth &amp; Wi-Fi Direct chat, or sync asynchronously over decentralized Nostr relays. Zero phone numbers. Zero accounts.
+        </p>
+        <div class="actions">
+          <a id="apk-btn" class="btn btn-primary" href="https://github.com/Murari17/kith/releases/latest/download/kith-v1.0.0.apk">
+            Download APK (v1.0.0)
+          </a>
+          <a id="obtainium-btn" class="btn btn-secondary" href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https%3A%2F%2Fgithub.com%2FMurari17%2Fkith" target="_blank" rel="noopener">
+            Obtainium Auto-Update
+          </a>
+          <a id="repo-btn" class="btn btn-secondary" href="https://github.com/Murari17/kith" target="_blank" rel="noopener">
+            Source Code
+          </a>
+        </div>
+      </div>
+
+      <div class="qr-card">
+        <div id="qrcode"></div>
+        <span class="qr-label">SCAN ON ANDROID TO SIDELOAD</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <span class="tag" style="color: var(--green);">● OFFLINE PROXIMITY MESH</span>
+        <h3>Works in Airplane Mode</h3>
+        <p>Uses BLE + Wi-Fi Direct multi-hop relaying with blinded 16-byte routing hashes so nearby phones forward encrypted packets without reading them.</p>
+      </div>
+      <div class="card">
+        <span class="tag" style="color: var(--cyan);">● DECENTRALIZED RELAYS</span>
+        <h3>Nostr NIP-44 Fallback</h3>
+        <p>When online, BIP-340 Schnorr signed events sync across public Nostr relays so messages deliver even when contacts are offline—deduplicated automatically.</p>
+      </div>
+      <div class="card">
+        <span class="tag" style="color: var(--amber);">● ZERO-TRACE PRIVACY</span>
+        <h3>Burner Rooms &amp; Panic Wipe</h3>
+        <p>Spin up 5-minute QR group rooms, send &le;18 KB E2EE compressed photos, set auto-delete timers, or erase SQLite and keys in one tap.</p>
+      </div>
+    </section>
+
+    <footer class="install-strip">
+      <div class="install-steps">
+        <span>INSTALL:</span> 1. Download kith-v1.0.0.apk &rarr; 2. Tap file &amp; allow unknown apps &rarr; 3. Scan QR to pair
+      </div>
+      <div>Built with zero servers by <a href="https://github.com/Murari17" target="_blank" rel="noopener" style="color: var(--ink); text-decoration: none;">Murari17</a></div>
+    </footer>
+  </div>
+
+  <script>
+    const GITHUB_USER = "Murari17";
+    const GITHUB_REPO = "kith";
+    const APK_FILENAME = "kith-v1.0.0.apk";
+
+    const repoUrl = `https://github.com/${GITHUB_USER}/${GITHUB_REPO}`;
+    const apkUrl = `${repoUrl}/releases/latest/download/${APK_FILENAME}`;
+    const obtainiumUrl = `https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/${encodeURIComponent(repoUrl)}`;
+
+    document.getElementById("apk-btn").href = apkUrl;
+    document.getElementById("obtainium-btn").href = obtainiumUrl;
+    document.getElementById("repo-btn").href = repoUrl;
+
+    if (typeof QRCode !== "undefined") {
+      new QRCode(document.getElementById("qrcode"), {
+        text: apkUrl,
+        width: 156,
+        height: 156,
+        colorDark: "#09090B",
+        colorLight: "#FAFAFA",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+  </script>
+</body>
+</html>
