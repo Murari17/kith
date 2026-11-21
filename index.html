@@ -1,353 +1,322 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kith — Zero-Server Encrypted Chat for Android</title>
-  <meta name="description" content="End-to-end encrypted messaging over offline Bluetooth mesh and decentralized Nostr relays. No phone numbers, no accounts, zero servers." />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 108 108'%3E%3Crect width='108' height='108' rx='24' fill='%2309090B'/%3E%3Cpath d='M26 42V26h16M82 66v16H66' fill='none' stroke='%23FAFAFA' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='45' y1='63' x2='63' y2='45' stroke='%23FAFAFA' stroke-width='7' stroke-linecap='round'/%3E%3Ccircle cx='44' cy='64' r='7' fill='%23FAFAFA'/%3E%3Ccircle cx='64' cy='44' r='7' fill='%2322C55E'/%3E%3C/svg%3E" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <style>
-    :root {
-      --bg: #09090B;
-      --surface: #131316;
-      --surface-hover: #1C1C20;
-      --border: #222226;
-      --ink: #FAFAFA;
-      --muted: #A1A1AA;
-      --green: #22C55E;
-      --cyan: #38BDF8;
-      --amber: #F59E0B;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Kith — Zero-Server Encrypted Chat for Android</title>
+<meta name="description" content="End-to-end encrypted messaging over offline Bluetooth mesh and decentralized Nostr relays. No phone numbers, no accounts, zero servers." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 108 108'%3E%3Crect width='108' height='108' rx='24' fill='%2309090B'/%3E%3Cpath d='M26 42V26h16M82 66v16H66' fill='none' stroke='%23FAFAFA' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='45' y1='63' x2='63' y2='45' stroke='%23FAFAFA' stroke-width='7' stroke-linecap='round'/%3E%3Ccircle cx='44' cy='64' r='7' fill='%23FAFAFA'/%3E%3Ccircle cx='64' cy='44' r='7' fill='%2322C55E'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#09090B; --surface:#131316; --border:#26262B; --ink:#FAFAFA; --muted:#A1A1AA;
+  --green:#22C55E; --cyan:#38BDF8; --amber:#F59E0B;
+  --btn-bg:#FAFAFA; --btn-ink:#09090B; --line:#3F3F46; --halo:rgba(34,197,94,.16);
+  --display:'Bricolage Grotesque','DM Sans',system-ui,sans-serif;
+  --body:'DM Sans',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:light){
+  :root:not([data-theme="dark"]){
+    color-scheme:light;
+    --bg:#FAFAF9; --surface:#FFFFFF; --border:#E4E4E7; --ink:#09090B; --muted:#52525B;
+    --green:#15803D; --cyan:#0369A1; --amber:#B45309;
+    --btn-bg:#09090B; --btn-ink:#FAFAFA; --line:#A1A1AA; --halo:rgba(21,128,61,.12);
+  }
+}
+:root[data-theme="dark"]{color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 24px}
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+/* nav */
+nav{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:28px 0}
+.brand{display:flex;align-items:center;gap:11px;font-family:var(--display);font-weight:800;font-size:1.35rem;letter-spacing:-.03em;text-decoration:none}
+.brand svg{width:34px;height:34px;border-radius:9px;background:#09090B;border:1px solid var(--border)}
+.nav-links{display:flex;gap:22px;font-size:.92rem;color:var(--muted)}
+.nav-links a{text-decoration:none}
+.nav-links a:hover{color:var(--ink)}
 
-    body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-    }
+/* hero */
+.hero{position:relative;padding:72px 0 24px;text-align:center}
+.hero::before{content:"";position:absolute;inset:-40px 0 auto;height:520px;background:radial-gradient(ellipse 60% 55% at 50% 40%,var(--halo),transparent 70%);pointer-events:none;z-index:-1}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(2.5rem,6.6vw,4.6rem);line-height:1;letter-spacing:-.045em;max-width:15ch;margin:0 auto 22px;text-wrap:balance}
+.sub{color:var(--muted);font-size:1.12rem;max-width:56ch;margin:0 auto 32px;text-wrap:pretty}
+.actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:14px 22px;border-radius:12px;font-weight:600;font-size:.96rem;text-decoration:none;transition:transform .15s ease,background .15s ease}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--btn-bg);color:var(--btn-ink)}
+.btn-primary:hover{opacity:.9}
+.btn-secondary{background:var(--surface);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--muted)}
+.meta{margin-top:20px;font-size:.85rem;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:500}
 
-    .wrap {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px 24px 96px;
-    }
+/* mesh */
+.mesh{margin:56px 0 0;border:1px solid var(--border);border-radius:20px;background:var(--surface);padding:16px 16px 18px;text-align:left}
+.mesh-bar{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-bottom:4px}
+.seg{display:inline-flex;background:var(--bg);border:1px solid var(--border);border-radius:999px;padding:3px}
+.seg button,.replay{font:500 .85rem var(--body);color:var(--muted);background:none;border:0;border-radius:999px;padding:7px 14px;cursor:pointer;transition:background .15s,color .15s}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.replay{border:1px solid var(--border);color:var(--ink)}
+.replay:hover{border-color:var(--muted)}
+#mesh-canvas{display:block;width:100%}
+.mesh figcaption{margin-top:10px;padding:0 4px;font-size:.92rem;color:var(--muted);max-width:68ch;min-height:3.1em}
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      padding-bottom: 36px;
-      border-bottom: 1px solid var(--border);
-    }
+/* features */
+.features{padding:88px 0 24px}
+.features h2,.start h2{font-family:var(--display);font-weight:700;font-size:clamp(1.7rem,3.4vw,2.3rem);letter-spacing:-.035em;line-height:1.1;margin-bottom:36px;max-width:22ch}
+.row{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.4fr);gap:12px 48px;padding:30px 0;border-top:1px solid var(--border)}
+.row:last-child{border-bottom:1px solid var(--border)}
+.row h3{font-family:var(--display);font-weight:700;font-size:1.3rem;letter-spacing:-.025em;display:flex;align-items:center;gap:12px}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.row p{color:var(--muted);max-width:60ch}
+.row code{font-family:var(--mono);font-size:.82rem;color:var(--ink);background:var(--surface);border:1px solid var(--border);padding:1px 6px;border-radius:6px}
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.4rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      color: var(--ink);
-      text-decoration: none;
-    }
+/* start */
+.start{padding:88px 0 80px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:48px;align-items:start}
+.steps{list-style:none;counter-reset:s;display:grid;gap:22px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:40px 1fr;gap:16px;align-items:start}
+.steps li::before{content:counter(s);width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:var(--surface);display:grid;place-items:center;font-family:var(--display);font-weight:700}
+.steps strong{display:block;font-weight:600;margin-top:2px}
+.steps span{color:var(--muted);font-size:.94rem}
+.qr-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:22px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px}
+#qrcode{background:#FAFAFA;padding:12px;border-radius:12px;min-width:180px;min-height:180px;display:flex;align-items:center;justify-content:center}
+.qr-card p{font-size:.88rem;color:var(--muted)}
 
-    .brand-icon {
-      width: 34px;
-      height: 34px;
-      border-radius: 9px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      display: block;
-    }
+footer{border-top:1px solid var(--border);padding:28px 0 40px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;color:var(--muted);font-size:.88rem}
+footer a{color:var(--ink);text-decoration:none}
+footer a:hover{text-decoration:underline}
 
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--muted);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 6px 12px;
-      border-radius: 999px;
-    }
-
-    .pulse-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 8px var(--green);
-    }
-
-    .hero {
-      display: grid;
-      grid-template-columns: 1.35fr 0.65fr;
-      gap: 40px;
-      align-items: center;
-      padding: 56px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    h1 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(2.2rem, 4.6vw, 3.25rem);
-      font-weight: 700;
-      line-height: 1.06;
-      letter-spacing: -0.04em;
-      margin-bottom: 18px;
-    }
-
-    .sub {
-      color: var(--muted);
-      font-size: 1.05rem;
-      margin-bottom: 28px;
-      max-width: 52ch;
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 13px 20px;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.94rem;
-      text-decoration: none;
-      transition: background 0.15s ease, opacity 0.15s ease;
-    }
-
-    .btn-primary {
-      background: var(--ink);
-      color: var(--bg);
-    }
-
-    .btn-primary:hover {
-      opacity: 0.9;
-    }
-
-    .btn-secondary {
-      background: var(--surface);
-      color: var(--ink);
-      border: 1px solid var(--border);
-    }
-
-    .btn-secondary:hover {
-      background: var(--surface-hover);
-    }
-
-    .qr-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    #qrcode {
-      background: #FAFAFA;
-      padding: 12px;
-      border-radius: 10px;
-      margin-bottom: 12px;
-      min-width: 180px;
-      min-height: 180px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .qr-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
-      color: var(--muted);
-      letter-spacing: 0.02em;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 16px;
-      padding: 48px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 22px;
-    }
-
-    .tag {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
-      margin-bottom: 10px;
-      display: inline-block;
-    }
-
-    .card h3 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.08rem;
-      margin-bottom: 8px;
-      letter-spacing: -0.02em;
-    }
-
-    .card p {
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-
-    .install-strip {
-      padding-top: 36px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-
-    .install-steps {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.78rem;
-    }
-
-    .install-steps span {
-      color: var(--ink);
-    }
-
-    @media (max-width: 740px) {
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .hero {
-        grid-template-columns: 1fr;
-        padding: 40px 0;
-      }
-      .qr-card {
-        max-width: 240px;
-      }
-    }
-  </style>
+@media (max-width:760px){
+  .nav-links{display:none}
+  .hero{padding-top:40px}
+  .row{grid-template-columns:1fr;padding:24px 0}
+  .start{grid-template-columns:1fr;gap:36px;padding:64px 0 56px}
+  .qr-card{max-width:260px}
+  .features{padding-top:64px}
+}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <a class="brand" href="#">
-        <svg class="brand-icon" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M26 42V26h16M82 66v16H66" fill="none" stroke="#FAFAFA" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
-          <line x1="45" y1="63" x2="63" y2="45" stroke="#FAFAFA" stroke-width="7" stroke-linecap="round" />
-          <circle cx="44" cy="64" r="7" fill="#FAFAFA" />
-          <circle cx="64" cy="44" r="7" fill="#22C55E" />
-        </svg>
-        Kith
-      </a>
-      <div class="status-pill">
-        <span class="pulse-dot"></span>
-        0 SERVERS · BLE MESH + NOSTR · ANDROID 7+
-      </div>
-    </header>
+<div class="wrap">
+  <nav>
+    <a class="brand" href="#">
+      <svg viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M26 42V26h16M82 66v16H66" fill="none" stroke="#FAFAFA" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="45" y1="63" x2="63" y2="45" stroke="#FAFAFA" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="44" cy="64" r="7" fill="#FAFAFA"/>
+        <circle cx="64" cy="44" r="7" fill="#22C55E"/>
+      </svg>
+      Kith
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#install">Install</a>
+    </div>
+  </nav>
 
-    <section class="hero">
-      <div>
-        <h1>Encrypted chat that works with or without internet.</h1>
-        <p class="sub">
-          Pair face-to-face via QR code for offline multi-hop Bluetooth &amp; Wi-Fi Direct chat, or sync asynchronously over decentralized Nostr relays. Zero phone numbers. Zero accounts.
-        </p>
-        <div class="actions">
-          <a id="apk-btn" class="btn btn-primary" href="https://github.com/Murari17/kith/releases/latest/download/kith.apk">
-            Download APK (v1.0.1)
-          </a>
-          <a id="obtainium-btn" class="btn btn-secondary" href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https%3A%2F%2Fgithub.com%2FMurari17%2Fkith" target="_blank" rel="noopener">
-            Obtainium Auto-Update
-          </a>
-          <a id="repo-btn" class="btn btn-secondary" href="https://github.com/Murari17/kith" target="_blank" rel="noopener">
-            Source Code
-          </a>
+  <header class="hero">
+    <h1>Encrypted chat that works without internet.</h1>
+    <p class="sub">Pair face to face with a QR code and chat over Bluetooth and Wi-Fi Direct, even in airplane mode. When you’re online, messages also sync through decentralized Nostr relays. No phone number, no account, no server.</p>
+    <div class="actions">
+      <a id="apk-btn" class="btn btn-primary" href="https://github.com/Murari17/kith/releases/latest/download/kith.apk">Download APK (v1.0.1)</a>
+    </div>
+    <p class="meta">Android 7 or newer. <b>No servers.</b></p>
+
+    <figure class="mesh">
+      <div class="mesh-bar">
+        <div class="seg" role="group" aria-label="Network mode">
+          <button type="button" data-m="mesh" aria-pressed="true">Offline mesh</button>
+          <button type="button" data-m="nostr" aria-pressed="false">Online with Nostr</button>
         </div>
+        <button type="button" class="replay" id="replay">Send again</button>
       </div>
+      <canvas id="mesh-canvas" role="img" aria-label="Animation of an encrypted message travelling from you to a friend."></canvas>
+      <figcaption id="mesh-cap"></figcaption>
+    </figure>
+  </header>
 
-      <div class="qr-card">
-        <div id="qrcode"></div>
-        <span class="qr-label">SCAN ON ANDROID TO SIDELOAD</span>
-      </div>
-    </section>
+  <section class="features" id="features">
+    <h2>Private by design, not by policy.</h2>
+    <div class="row">
+      <h3><span class="dot" style="background:var(--green)"></span>Works in airplane mode</h3>
+      <p>Bluetooth LE and Wi-Fi Direct carry messages across multiple hops, so nearby phones relay encrypted packets for each other. No signal needed.</p>
+    </div>
+    <div class="row">
+      <h3><span class="dot" style="background:var(--cyan)"></span>Nostr fallback when online</h3>
+      <p>Messages are encrypted with <code>NIP-44</code> and signed with BIP-340 Schnorr, then synced through public Nostr relays. They arrive even if your contact is offline, and duplicates are dropped automatically.</p>
+    </div>
+    <div class="row">
+      <h3><span class="dot" style="background:var(--amber)"></span>Burner rooms and panic wipe</h3>
+      <p>Start a five-minute group room from a QR code, send compressed photos up to 18 KB with end-to-end encryption, set auto-delete timers, or erase the database and keys with one tap.</p>
+    </div>
+  </section>
 
-    <section class="grid">
-      <div class="card">
-        <span class="tag" style="color: var(--green);">● OFFLINE PROXIMITY MESH</span>
-        <h3>Works in Airplane Mode</h3>
-        <p>Uses BLE + Wi-Fi Direct multi-hop relaying with blinded 16-byte routing hashes so nearby phones forward encrypted packets without reading them.</p>
-      </div>
-      <div class="card">
-        <span class="tag" style="color: var(--cyan);">● DECENTRALIZED RELAYS</span>
-        <h3>Nostr NIP-44 Fallback</h3>
-        <p>When online, BIP-340 Schnorr signed events sync across public Nostr relays so messages deliver even when contacts are offline—deduplicated automatically.</p>
-      </div>
-      <div class="card">
-        <span class="tag" style="color: var(--amber);">● ZERO-TRACE PRIVACY</span>
-        <h3>Burner Rooms &amp; Panic Wipe</h3>
-        <p>Spin up 5-minute QR group rooms, send &le;18 KB E2EE compressed photos, set auto-delete timers, or erase SQLite and keys in one tap.</p>
-      </div>
-    </section>
+  <section class="start" id="install">
+    <div>
+      <h2>Install in a minute.</h2>
+      <ol class="steps">
+        <li><div><strong>Download kith.apk</strong><span>Use the button above, or scan the QR code with your Android phone.</span></div></li>
+        <li><div><strong>Allow unknown apps</strong><span>Open the downloaded file and allow installs from your browser or file manager.</span></div></li>
+        <li><div><strong>Scan to pair</strong><span>Meet your contact, scan each other’s QR code, and start chatting.</span></div></li>
+      </ol>
+    </div>
+    <div class="qr-card">
+      <div id="qrcode"></div>
+      <p>Scan on Android to download the APK</p>
+    </div>
+  </section>
 
-    <footer class="install-strip">
-      <div class="install-steps">
-        <span>INSTALL:</span> 1. Download kith.apk &rarr; 2. Tap file &amp; allow unknown apps &rarr; 3. Scan QR to pair
-      </div>
-      <div>Built with zero servers by <a href="https://github.com/Murari17" target="_blank" rel="noopener" style="color: var(--ink); text-decoration: none;">Murari17</a></div>
-    </footer>
-  </div>
+  <footer>
+    <span>Built by Murari</span>
+    <span>Kith v1.0.1</span>
+  </footer>
+</div>
 
-  <script>
-    const GITHUB_USER = "Murari17";
-    const GITHUB_REPO = "kith";
-    const APK_FILENAME = "kith.apk";
+<script>
+// APK location. Direct GitHub release (works with no setup, but the URL shows your repo).
+// For the hidden version, use the proxy and set: const APK_URL = "/kith.apk";
+const APK_URL = "https://github.com/Murari17/kith/releases/latest/download/kith.apk";
+const apkUrl = new URL(APK_URL, location.href).href;
+document.getElementById("apk-btn").href = apkUrl;
 
-    const repoUrl = `https://github.com/${GITHUB_USER}/${GITHUB_REPO}`;
-    const apkUrl = `${repoUrl}/releases/latest/download/${APK_FILENAME}`;
-    const obtainiumUrl = `https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/${encodeURIComponent(repoUrl)}`;
+if(typeof QRCode!=="undefined"){
+  new QRCode(document.getElementById("qrcode"),{text:apkUrl,width:156,height:156,colorDark:"#09090B",colorLight:"#FAFAFA",correctLevel:QRCode.CorrectLevel.M});
+}
+(function(){
+  const cv=document.getElementById("mesh-canvas"); if(!cv) return;
+  const ctx=cv.getContext("2d"), cap=document.getElementById("mesh-cap");
+  const btns=[...document.querySelectorAll(".seg button")], replay=document.getElementById("replay");
+  const reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+  const SC={
+    mesh:{color:"--green",speed:.17,hold:140,you:0,friend:9,relay:[],
+      n:[[.04,.52],[.2,.2],[.22,.82],[.37,.46],[.47,.14],[.5,.86],[.63,.5],[.75,.16],[.77,.84],[.96,.5]],
+      e:[[0,1],[0,2],[1,3],[1,4],[2,3],[2,5],[3,4],[3,5],[3,6],[4,6],[4,7],[5,6],[5,8],[6,7],[6,8],[7,9],[8,9]],
+      cap:"Every phone in range passes the packet to its neighbors. Duplicates are dropped, and phones in between can’t read it."},
+    nostr:{color:"--cyan",speed:.3,hold:450,you:0,friend:1,relay:[2,3,4],
+      n:[[.05,.8],[.95,.8],[.25,.2],[.5,.1],[.75,.2]],
+      e:[[0,2],[0,3],[0,4],[2,1],[3,1],[4,1]],
+      cap:"Online, the signed, encrypted event goes to several public relays. Your friend’s phone keeps the first copy and drops the rest."}
+  };
+  let mode="mesh",auto=true,t=0,W=0,H=0,P=[],ev=[],first=[],path=[],END=1,DEL=1,K={};
+  const T0=700;
+  const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const rr=(x,y,w,h,r)=>{ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h);};
 
-    document.getElementById("apk-btn").href = apkUrl;
-    document.getElementById("obtainium-btn").href = obtainiumUrl;
-    document.getElementById("repo-btn").href = repoUrl;
-
-    if (typeof QRCode !== "undefined") {
-      new QRCode(document.getElementById("qrcode"), {
-        text: apkUrl,
-        width: 156,
-        height: 156,
-        colorDark: "#09090B",
-        colorLight: "#FAFAFA",
-        correctLevel: QRCode.CorrectLevel.M
-      });
+  function build(){
+    const sc=SC[mode];
+    P=sc.n.map(([x,y])=>[40+x*(W-80),52+y*(H-108)]);
+    const adj=P.map(()=>[]); sc.e.forEach(([a,b])=>{adj[a].push(b);adj[b].push(a);});
+    first=P.map(()=>null); ev=[];
+    const send=(u,from,t0)=>adj[u].forEach(v=>{if(v!==from){const d=Math.hypot(P[v][0]-P[u][0],P[v][1]-P[u][1]);ev.push({a:u,b:v,t0,t1:t0+d/sc.speed,done:0,ok:0});}});
+    first[sc.you]={t:T0,from:-1}; send(sc.you,-1,T0);
+    for(;;){
+      let k=-1; ev.forEach((x,i)=>{if(!x.done&&(k<0||x.t1<ev[k].t1))k=i;});
+      if(k<0)break;
+      const x=ev[k]; x.done=1;
+      if(!first[x.b]){first[x.b]={t:x.t1,from:x.a};x.ok=1;if(x.b!==sc.friend)send(x.b,x.a,x.t1+sc.hold);}
     }
-  </script>
+    DEL=first[sc.friend].t;
+    path=[]; for(let u=sc.friend;first[u]&&first[u].from>=0;u=first[u].from)path.push([first[u].from,u]);
+    END=Math.max(DEL+2800,Math.max(...ev.map(x=>x.t1))+700);
+  }
+
+  function init(){
+    const sc=SC[mode], dpr=window.devicePixelRatio||1;
+    W=cv.clientWidth||600; H=Math.round(clamp(W*.4,260,340));
+    cv.style.height=H+"px"; cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+    K={col:css(sc.color),ink:css("--ink"),muted:css("--muted"),line:css("--line"),bg:css("--bg")};
+    build(); t=0; cap.textContent=sc.cap;
+    btns.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.m===mode)));
+    if(reduce)draw(DEL+900);
+  }
+
+  function label(txt,x,y,font,color,alpha){ctx.globalAlpha=alpha;ctx.font=font;ctx.fillStyle=color;ctx.textAlign="center";ctx.fillText(txt,x,y);}
+  function bubble(x,y,alpha){
+    x=clamp(x,42,W-42); ctx.globalAlpha=alpha; rr(x-32,y-15,64,30,15);
+    ctx.fillStyle=K.bg;ctx.fill();ctx.strokeStyle=K.col;ctx.lineWidth=1.5;ctx.stroke();
+    ctx.font="500 13px 'DM Sans',sans-serif";ctx.fillStyle=K.ink;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("Hello",x,y+1);ctx.textBaseline="alphabetic";
+  }
+
+  function draw(t){
+    const sc=SC[mode], ga=clamp(t/350)*(1-clamp((t-(END-400))/400));
+    ctx.clearRect(0,0,W,H); ctx.lineCap="round";
+    // base links
+    ctx.setLineDash(mode==="nostr"?[3,7]:[]); ctx.lineWidth=1; ctx.strokeStyle=K.line; ctx.globalAlpha=.6*ga;
+    sc.e.forEach(([a,b])=>{ctx.beginPath();ctx.moveTo(...P[a]);ctx.lineTo(...P[b]);ctx.stroke();});
+    ctx.setLineDash([]);
+    // trails
+    ev.forEach(x=>{
+      if(t<x.t0)return;
+      const p=clamp((t-x.t0)/(x.t1-x.t0)), A=P[x.a], B=P[x.b], X=A[0]+(B[0]-A[0])*p, Y=A[1]+(B[1]-A[1])*p;
+      const fade=p<1?1:1-clamp((t-x.t1)/1300);
+      ctx.globalAlpha=ga*fade*(x.ok?.95:.4); ctx.strokeStyle=K.col; ctx.lineWidth=x.ok?2.2:1.4;
+      ctx.beginPath();ctx.moveTo(A[0],A[1]);ctx.lineTo(X,Y);ctx.stroke();
+    });
+    // delivery path
+    const pa=clamp((t-DEL)/300)*(1-clamp((t-DEL-2000)/500));
+    if(pa>0){ctx.globalAlpha=ga*pa;ctx.strokeStyle=K.col;ctx.lineWidth=3.5;ctx.shadowColor=K.col;ctx.shadowBlur=14;
+      path.forEach(([a,b])=>{ctx.beginPath();ctx.moveTo(...P[a]);ctx.lineTo(...P[b]);ctx.stroke();});ctx.shadowBlur=0;}
+    // dropped duplicates
+    ev.forEach(x=>{const age=t-x.t1;if(!x.ok&&age>=0&&age<500){ctx.globalAlpha=ga*.5*(1-age/500);ctx.strokeStyle=K.muted;ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(P[x.b][0],P[x.b][1],12+age*.03,0,6.283);ctx.stroke();}});
+    // nodes
+    P.forEach(([x,y],i)=>{
+      const f=first[i], age=f?t-f.t:-1, relay=sc.relay.includes(i), main=i===sc.you||i===sc.friend, hot=age>=0&&age<1500;
+      if(age>=0&&age<900){const e=age/900;ctx.globalAlpha=ga*.6*(1-e);ctx.strokeStyle=K.col;ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,16+e*e*34,0,6.283);ctx.stroke();}
+      ctx.globalAlpha=ga; ctx.lineWidth=main?2:1.5; ctx.strokeStyle=hot?K.col:main?K.ink:K.line; ctx.fillStyle=K.bg;
+      if(hot){ctx.shadowColor=K.col;ctx.shadowBlur=12;}
+      if(relay)rr(x-15,y-12,30,24,7);else rr(x-9,y-15,18,30,5);
+      ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+      if(relay){ctx.strokeStyle=K.muted;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x-7,y-3);ctx.lineTo(x+7,y-3);ctx.moveTo(x-7,y+4);ctx.lineTo(x+7,y+4);ctx.stroke();}
+      else if(age>=0){ctx.globalAlpha=ga*.9;ctx.fillStyle=K.col;ctx.beginPath();ctx.arc(x,y,3.2,0,6.283);ctx.fill();}
+      if(main)label(i===sc.you?"You":"Friend",x,y+33,"600 13px 'DM Sans',sans-serif",K.ink,ga);
+      else if(relay)label("public relay",x,y+30,"11px 'DM Sans',sans-serif",K.muted,ga);
+    });
+    // bubbles + delivered
+    const Y0=P[sc.you], F=P[sc.friend], da=clamp((t-DEL)/300)*(1-clamp((t-DEL-2200)/500));
+    bubble(Y0[0],Y0[1]-38,ga*clamp(t/400)*(1-clamp((t-T0)/350)));
+    if(da>0){bubble(F[0],F[1]-38,ga*da);label("Delivered and decrypted",clamp(F[0],70,W-70),F[1]+50,"12px 'DM Sans',sans-serif",K.col,ga*da);}
+    // packets
+    ev.forEach(x=>{
+      if(t<x.t0||t>=x.t1)return;
+      const p=(t-x.t0)/(x.t1-x.t0), A=P[x.a], B=P[x.b];
+      ctx.globalAlpha=ga;ctx.fillStyle=K.col;ctx.shadowColor=K.col;ctx.shadowBlur=14;
+      ctx.beginPath();ctx.arc(A[0]+(B[0]-A[0])*p,A[1]+(B[1]-A[1])*p,x.ok?4.5:3,0,6.283);ctx.fill();ctx.shadowBlur=0;
+    });
+    ctx.globalAlpha=1;
+  }
+
+  function setMode(m,user){if(user)auto=false;mode=m;init();}
+  btns.forEach(b=>b.addEventListener("click",()=>setMode(b.dataset.m,true)));
+  replay.addEventListener("click",()=>{if(reduce)draw(DEL+900);else t=0;});
+  if("ResizeObserver" in window)new ResizeObserver(()=>{if(cv.clientWidth&&Math.abs(cv.clientWidth-W)>2)init();}).observe(cv);
+
+  let visible=true,last=null;
+  if("IntersectionObserver" in window)new IntersectionObserver(e=>{visible=e[0].isIntersecting;}).observe(cv);
+  init();
+  if(reduce)return;
+  (function loop(ts){
+    const dt=last===null?0:Math.min(50,ts-last); last=ts;
+    if(visible){
+      t+=dt;
+      if(t>=END){if(auto)setMode(mode==="mesh"?"nostr":"mesh",false);else t=0;}
+      draw(t);
+    }
+    requestAnimationFrame(loop);
+  })(performance.now());
+})();
+</script>
 </body>
 </html>
